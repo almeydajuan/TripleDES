@@ -12,10 +12,8 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 			SecretKey key1 = generateDESkey();
-			// SecretKey key2 = generateDESkey();
 			String data = "Confidential data";
 			Cipher encryptCipher1 = generateEncriptCipher(key1);
-			// Cipher encryptCipher2 = generateEncriptCipher(key2);
 			Cipher decryptCipher1 = generateDecriptCipher(key1, encryptCipher1);
 
 			byte[] encryptedData = encriptData(data, encryptCipher1);

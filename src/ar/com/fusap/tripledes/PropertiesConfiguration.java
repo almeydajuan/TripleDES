@@ -26,7 +26,11 @@ public class PropertiesConfiguration {
         return props.getProperty("3des.key");
     }
 
-    public String getProcessingPath() {
-        return props.getProperty("3des.folder.processing");
+	public String getProcessedFolderPath() {
+		return props.getProperty("3des.folder.processed");
     }
+
+	public String getNextFolderPath() {
+		return props.getProperty("3des.folder.next");
+	}
 }

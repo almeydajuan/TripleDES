@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+
+import ar.com.fusap.tripledes.exception.FileSystemException;
 
 /**
  * Created by jualmeyda on 11/11/15.
@@ -12,11 +15,11 @@ import java.io.InputStream;
 public class FileSystemService {
 
 	private static String generateProcessedFileName(String processedFolderPath, String fileName) {
-		return processedFolderPath + "/" + fileName + TripleDesService.suffix;
+		return String.format("%s/%s%s", processedFolderPath, fileName, TripleDesService.suffix);
 	}
 
 	private static String generateDecryptedFileName(String nextFolderPath, String encryptedFile) {
-		return nextFolderPath + "/" + encryptedFile.replace(TripleDesService.suffix, "");
+		return String.format("%s/%s", nextFolderPath, encryptedFile.replace(TripleDesService.suffix, ""));
 	}
 
 	private static String getFileName(String sourceFile) {
@@ -33,7 +36,7 @@ public class FileSystemService {
 			fileWriter.write(encryptedBytes);
 			fileWriter.close();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new FileSystemException(e);
 		}
 	}
 
@@ -46,7 +49,7 @@ public class FileSystemService {
 			fileWriter.write(decryptedBytes);
 			fileWriter.close();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new FileSystemException(e);
 		}
 	}
 
@@ -55,36 +58,49 @@ public class FileSystemService {
 		return folderPath;
 	}
 
-	public static byte[] readFile(String filePath) throws IOException {
-		File file = new File(filePath);
-		long length = file.length();
-		InputStream is = new FileInputStream(file);
+	public static byte[] readFile(String filePath) {
+		try {
+			File file = new File(filePath);
+			long length = file.length();
+			InputStream is = new FileInputStream(file);
 
-		// You cannot create an array using a long type.
-		// It needs to be an int type.
-		// Before converting to an int type, check
-		// to ensure that file is not larger than Integer.MAX_VALUE.
-		if (length > Integer.MAX_VALUE) {
-			throw new RuntimeException("file is too large, lenght: " + length);
+			// You cannot create an array using a long type.
+			// It needs to be an int type.
+			// Before converting to an int type, check
+			// to ensure that file is not larger than Integer.MAX_VALUE.
+			if (length > Integer.MAX_VALUE) {
+				throw new FileSystemException(new RuntimeException("file is too large, lenght: " + length));
+			}
+
+			// Create the byte array to hold the data
+			byte[] bytes = new byte[(int) length];
+
+			// Read in the bytes
+			int offset = 0;
+			int numRead = 0;
+			while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+				offset += numRead;
+			}
+
+			// Close the input stream and return bytes
+			is.close();
+
+			// Ensure all the bytes have been read in
+			if (offset < bytes.length) {
+				throw new FileSystemException(new RuntimeException("Could not completely read file " + file.getName()));
+			}
+			return bytes;
+		} catch (Exception e) {
+			throw new FileSystemException(e);
 		}
+	}
 
-		// Create the byte array to hold the data
-		byte[] bytes = new byte[(int) length];
-
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-			offset += numRead;
+	public static void copyFileToErrorFolder(String filePath) {
+		try {
+			String errorFolderPath = new PropertiesConfiguration().getErrorFolderPath();
+			Files.copy(new File(filePath).toPath(), new File(String.format("%s/%s", errorFolderPath, getFileName(filePath))).toPath());
+		} catch (IOException e) {
+			throw new FileSystemException(e);
 		}
-
-		// Close the input stream and return bytes
-		is.close();
-
-		// Ensure all the bytes have been read in
-		if (offset < bytes.length) {
-			throw new RuntimeException("Could not completely read file " + file.getName());
-		}
-		return bytes;
 	}
 }

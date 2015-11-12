@@ -33,4 +33,8 @@ public class PropertiesConfiguration {
 	public String getNextFolderPath() {
 		return props.getProperty("3des.folder.next");
 	}
+
+	public String getErrorFolderPath() {
+		return props.getProperty("3des.folder.error");
+	}
 }

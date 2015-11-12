@@ -6,6 +6,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import ar.com.fusap.tripledes.exception.TripleDesException;
+
 /**
  * Created by jualmeyda on 11/11/15.
  */
@@ -19,7 +21,7 @@ public class TripleDesService {
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("DESede");
 			return factory.generateSecret(new DESedeKeySpec(keyBytes));
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new TripleDesException(e);
 		}
 	}
 
@@ -29,7 +31,7 @@ public class TripleDesService {
 			cipher.init(Cipher.ENCRYPT_MODE, desKey);
 			return cipher.doFinal(fileBytes);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new TripleDesException(e);
 		}
 	}
 
@@ -39,7 +41,7 @@ public class TripleDesService {
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			return cipher.doFinal(fileBytes);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new TripleDesException(e);
 		}
 	}
 }

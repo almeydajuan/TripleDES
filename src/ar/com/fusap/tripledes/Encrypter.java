@@ -7,15 +7,18 @@ import javax.crypto.SecretKey;
  */
 public class Encrypter {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		// va a venir por parametro
-		String sourceFile = "/tmp/source.jpg";
-
-		PropertiesConfiguration properties = new PropertiesConfiguration();
-		SecretKey secretKey = TripleDesService.generateDESkey(properties.getDESKey());
-
-		byte[] fileBytes = FileSystemService.readFile(sourceFile);
-		byte[] encryptedBytes = TripleDesService.desEncryption(fileBytes, secretKey);
-		FileSystemService.writeEncryptedFile(sourceFile, properties, encryptedBytes);
+		String sourceFilePath = "/tmp/source.jpg";
+		try {
+			PropertiesConfiguration properties = new PropertiesConfiguration();
+			SecretKey secretKey = TripleDesService.generateDESkey(properties.getDESKey());
+			byte[] fileBytes = FileSystemService.readFile(sourceFilePath);
+			byte[] encryptedBytes = TripleDesService.desEncryption(fileBytes, secretKey);
+			FileSystemService.writeEncryptedFile(sourceFilePath, properties, encryptedBytes);
+		} catch (Exception e) {
+			FileSystemService.copyFileToErrorFolder(sourceFilePath);
+			throw e;
+		}
 	}
 }

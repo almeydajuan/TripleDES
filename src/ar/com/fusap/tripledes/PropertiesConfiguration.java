@@ -13,7 +13,7 @@ public class PropertiesConfiguration {
 
     public PropertiesConfiguration() {
         try {
-            File configFile = new File("application.properties");
+			File configFile = new File("resources/application.properties");
             FileReader reader = new FileReader(configFile);
             props = new Properties();
             props.load(reader);
